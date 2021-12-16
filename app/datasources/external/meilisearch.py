@@ -12,7 +12,11 @@ class MeiliSearch(DataSource):
         self.session = Client(api_url, api_key)
 
     async def search(self, query: str) -> dict:
+        response = dict()
         async with self.session as client:
-            index = client.index('internal_pim')
-            search_result = await index.search(query, limit=1)
-            return search_result.hits
+            for index in await client.get_indexes():
+                search_result = await index.search(query, limit=1)
+                results_set = search_result.hits and next(iter(search_result.hits)) or None
+                if results_set and str(int(results_set['EAN'])) == query:
+                    response[index.uid] = results_set 
+        return response

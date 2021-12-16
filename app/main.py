@@ -62,8 +62,3 @@ app.include_router(fastapi_users.get_verify_router(), prefix="/auth", tags=["aut
 app.include_router(fastapi_users.get_users_router(), prefix="/users", tags=["users"])
 
 app.include_router(items.router, tags=["search"])
-
-
-# @app.get("/authenticated-route")
-# async def authenticated_route(user: UserDB = Depends(current_active_user)):
-#   return {"message": f"Hello {user.email}!"}

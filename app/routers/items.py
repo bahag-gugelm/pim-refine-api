@@ -18,12 +18,11 @@ async def search(
     response_model=None,
     status_code=200
     ):
-    client = PInfo('https://p-info.bahag.com/temp/api-test/')
-    result_set = await client.search(query=query)
-    meilisearch = MeiliSearch('http://34.107.102.246/')
-    pim_results = await meilisearch.search(query)
-    return {
-        'EAN': query,
-        'internal': pim_results,
-        'external': {'p_info': result_set}
-        }
+    response = list()
+    for ean in (item.strip() for item in query.split(',')):
+        meilisearch = MeiliSearch('http://34.107.102.246/')
+        response.append({
+            'EAN': ean,
+            'results': await meilisearch.search(ean)
+            })
+    return response
