@@ -29,7 +29,7 @@ class Icecat(DataSource):
 
     async def search(self, query: str) -> dict:
         async with self.session as client:
-            api_url = f"https://live.icecat.biz/api/?UserName=openIcecat-live&Language=de&GTIN={query}&Content=All"
+            api_url = f"https://live.icecat.biz/api/?UserName=openIcecat-live&Language=DE&GTIN={query}&Content=All"
             response = await client.get(api_url)
             json_body = response.json()
             if json_body.get("data"):
@@ -43,7 +43,7 @@ class Icecat(DataSource):
 
     async def search_full_icecart(self, query: str, username, icecat_api_key) -> dict:
         async with self.session as client:
-            api_url = f"https://live.icecat.biz/api/?shopname={username}&lang=en&content=&GTIN={query}&app_key={icecat_api_key}&Content=All"
+            api_url = f"https://live.icecat.biz/api/?shopname={username}&lang=DE&content=All&GTIN={query}&app_key={icecat_api_key}"
             response = await client.get(api_url)
             json_body = response.json()
             if json_body.get("data"):
