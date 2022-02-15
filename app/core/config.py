@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     P_INFO_API_URL: AnyHttpUrl
     P_INFO_API_KEY: str
 
+    ICECAT_USER: str
+    ICECAT_API_KEY: str
+
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)

@@ -34,6 +34,7 @@ async def startup() -> None:
     if not database_.is_connected:
         await database_.connect()
 
+    # doesn't work under Win
     # su = await UserModel.objects.get_or_none(email=settings.FIRST_SUPERUSER)
     # if not su:
     #     async with get_user_manager() as user_manager:
