@@ -20,6 +20,9 @@ class Icecat(DataSource):
             "EAN": data.get("GeneralInfo").get("GTIN"),
             "Title": data.get("GeneralInfo").get("Title"),
             "Brand": data.get("GeneralInfo").get("Brand"),
+            "ShortDescription": data.get("GeneralInfo").get("SummaryDescription").get("ShortSummaryDescription"),
+            "LongDescription": data.get("GeneralInfo").get("SummaryDescription").get("LongSummaryDescription"),
+            "BulletPoints": data.get("GeneralInfo").get("BulletPoints").get("Values")
         }
         feature_groups = data.get("FeaturesGroups")
         for feature_group in feature_groups:
