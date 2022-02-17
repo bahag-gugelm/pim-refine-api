@@ -1,5 +1,5 @@
 import logging
-from os import stat
+import re
 from typing import Union, List
 from fastapi.exceptions import HTTPException
 from httpx import AsyncClient
@@ -14,15 +14,21 @@ class Icecat(DataSource):
         self.logger = logging.getLogger(__name__)
 
 
-    @staticmethod
-    def _extract_attributes(data: dict):
+    def _cleanup_txt(self, text: str):
+        clean = re.compile('<.*?>')
+        return re.sub(clean, '', text).strip().replace('\n', '')
+
+
+    def _extract_attributes(self, data: dict):
         product_info = {
             "EAN": data.get("GeneralInfo").get("GTIN"),
             "Title": data.get("GeneralInfo").get("Title"),
             "Brand": data.get("GeneralInfo").get("Brand"),
             "ShortDescription": data.get("GeneralInfo").get("SummaryDescription").get("ShortSummaryDescription"),
             "LongDescription": data.get("GeneralInfo").get("SummaryDescription").get("LongSummaryDescription"),
-            "BulletPoints": data.get("GeneralInfo").get("BulletPoints").get("Values")
+            "BulletPoints": data.get("GeneralInfo").get("BulletPoints").get("Values"),
+            "FullDescription": self._cleanup_txt(data.get("GeneralInfo").get("Description").get("LongDesc")),
+            "LongProductName": data.get("GeneralInfo").get("Description").get("LongProductName"),
         }
         feature_groups = data.get("FeaturesGroups")
         for feature_group in feature_groups:
