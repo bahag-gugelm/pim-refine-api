@@ -7,12 +7,9 @@ from app.utils.dependencies import get_user_manager
 
 
 
-SECRET_KEY = settings.SECRET_KEY
-
-
 jwt_authentication = JWTAuthentication(
-    secret=SECRET_KEY,
-    lifetime_seconds=3600,
+    secret=settings.SECRET_KEY,
+    lifetime_seconds=settings.ACCESS_TOKEN_LIFETIME,
     tokenUrl="auth/jwt/login"
     )
 
