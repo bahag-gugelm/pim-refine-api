@@ -1,9 +1,11 @@
 aiofiles==0.7.0
 alembic==1.7.3
 anyio==3.3.4
+APScheduler==3.9.0.post1
 asgiref==3.4.1
 asyncpg==0.24.0
 autopep8==1.5.7
+backports.zoneinfo==0.2.1
 bcrypt==3.2.0
 camel-converter==1.0.3
 certifi==2021.10.8
@@ -36,6 +38,8 @@ pydantic==1.8.2
 PyJWT==2.1.0
 python-dotenv==0.19.0
 python-multipart==0.0.5
+pytz==2021.3
+pytz-deprecation-shim==0.1.0.post0
 rfc3986==1.5.0
 six==1.16.0
 sniffio==1.2.0
@@ -43,5 +47,7 @@ SQLAlchemy==1.4.25
 starlette==0.14.2
 toml==0.10.2
 typing-extensions==3.10.0.2
+tzdata==2021.5
+tzlocal==4.1
 uvicorn==0.15.0
 zipp==3.6.0

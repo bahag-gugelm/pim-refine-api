@@ -1,8 +1,15 @@
+from logging import exception
 from passlib.context import CryptContext
 
 from fastapi import Depends, FastAPI
+from fastapi.logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_users.password import get_password_hash
+
+from sqlalchemy import create_engine
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from app.core.config import settings
 from app.db import database
@@ -10,7 +17,7 @@ from app.utils.dependencies import get_user_manager
 from app.models.user import UserDB, UserModel, UserCreate
 from app.routers.users import current_active_user, fastapi_users, jwt_authentication
 from app.routers import items
-
+from app.routers import schedules
 
 
 app = FastAPI()
@@ -33,6 +40,17 @@ async def startup() -> None:
     database_ = app.state.database
     if not database_.is_connected:
         await database_.connect()
+    
+    try:
+        jobstores = {
+            'default': SQLAlchemyJobStore(engine=create_engine(settings.SQLALCHEMY_DATABASE_URI))
+            }
+        app.state.scheduler = AsyncIOScheduler(jobstores=jobstores)
+        app.state.scheduler.start()
+        logger.info("Created Schedule Object")   
+    except Exception as e:    
+        logger.error(f"Unable to Create Schedule Object because of {e}")
+
 
     # doesn't work under Win
     # su = await UserModel.objects.get_or_none(email=settings.FIRST_SUPERUSER)
@@ -54,6 +72,8 @@ async def shutdown() -> None:
     database_ = app.state.database
     if database_.is_connected:
         await database_.disconnect()
+    app.state.scheduler.shutdown()
+    logger.info("Scheduler is shut down")
 
 
 app.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth/jwt", tags=["auth"])
@@ -63,3 +83,4 @@ app.include_router(fastapi_users.get_verify_router(), prefix="/auth", tags=["aut
 app.include_router(fastapi_users.get_users_router(), prefix="/users", tags=["users"])
 
 app.include_router(items.router, tags=["search"])
+app.include_router(schedules.router, tags=["scheduler"])

@@ -7,6 +7,7 @@ from app.routers.users import current_active_user
 from app.datasources.external.p_info import PInfo
 from app.datasources.external.meilisearch import MeiliSearch
 from app.datasources.external.icecat import Icecat
+from app.datasources.external.crawlab import Crawlab
 
 
 
@@ -24,20 +25,26 @@ async def search(
     response = list()
 
     for ean in (item.strip() for item in query.split(',')):
-        p_info_client = PInfo(
+        p_info_results = await PInfo(
             api_url = settings.P_INFO_API_URL,
             api_key = settings.P_INFO_API_KEY
-            )
-        p_info_results = await p_info_client.search(query=ean)
+            ).search(query=ean)
         meilisearch = MeiliSearch('http://34.107.102.246/')
         pim_results = await meilisearch.search(ean)
         icecat_results = await Icecat().search(ean)
+        async with Crawlab(
+            settings.CRAWLAB_API_URL,
+            settings.CRAWLAB_API_KEY
+            ) as crawlab_client:
+            crawlab_results = await crawlab_client.search(ean)
         response.append({
             'EAN': ean,
             'results': {
                 **pim_results,
                 **{'p_info': p_info_results},
-                **{'icecat': icecat_results}}
+                **{'icecat': icecat_results},
+                **{'crawlab': crawlab_results}
+                }
             })
     
     return response

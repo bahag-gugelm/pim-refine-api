@@ -1,5 +1,5 @@
 from ormar.models import Model
-from ormar import JSON, String, ForeignKey, DateTime
+from ormar import JSON, String, ForeignKey, DateTime, UUID
 
 from app.db import metadata, database
 from app.models.user import UserModel
@@ -13,7 +13,24 @@ class IceCatItemInfoModel(Model):
         metadata = metadata
         database = database
 
-    ean = String(primary_key=True, index=True, unique=True, nullable=False, max_length=13)
+    ean = String(
+        primary_key=True, index=True,
+        unique=True, nullable=False, max_length=13
+        )
     info = JSON()
     requested_by = ForeignKey(UserModel)
     requested_at = DateTime(server_default=func.current_timestamp())
+
+
+class CrawlabItemInfoModel(Model):
+    class Meta:
+        tablename = 'crawlab_info'
+        metadata = metadata
+        database = database
+
+    ean = String(
+        primary_key=True, index=True,
+        unique=True, nullable=False, max_length=13,
+        )
+    info = JSON()
+    task_id = UUID()
