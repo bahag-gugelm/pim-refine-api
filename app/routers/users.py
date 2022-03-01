@@ -22,4 +22,5 @@ fastapi_users = FastAPIUsers(
     UserDB,
     )
 
-current_active_user = fastapi_users.current_user(active=True)
+def get_fastapi_users():
+    return fastapi_users

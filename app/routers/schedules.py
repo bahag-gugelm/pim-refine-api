@@ -4,6 +4,8 @@ from fastapi import (APIRouter, Depends, HTTPException, status)
 from app.models.job import (
     CurrentScheduledJob, JobCreateDeleteResponse, CurrentScheduledJobsResponse
     )
+from app.models.user import UserDB
+from app.utils.dependencies import get_current_admin
 from app.utils.scheduler import get_scheduler
 from app.scheduler.jobs import scheduler_jobs
 
@@ -13,7 +15,7 @@ router = APIRouter()
 
 
 @router.get("/scheduler/", response_model = CurrentScheduledJobsResponse, tags=["scheduler"])
-async def get_scheduled_syncs():
+async def get_scheduled_syncs(admin: UserDB = Depends(get_current_admin())):
     """
     Will provide a list of currently Scheduled Tasks
     """
@@ -24,7 +26,11 @@ async def get_scheduled_syncs():
 
 
 @router.post("/scheduler/", response_model = JobCreateDeleteResponse, tags=["scheduler"])
-async def schedule_job(time_in_seconds: int = 60, name = "crawlab_import"):
+async def schedule_job(
+    time_in_seconds: int = 60,
+    name = "crawlab_import",
+    admin: UserDB = Depends(get_current_admin())
+    ):
     """
     Adds a New Job to a Schedule
     """
@@ -44,7 +50,7 @@ async def schedule_job(time_in_seconds: int = 60, name = "crawlab_import"):
 
 
 @router.delete("/scheduler/", response_model = JobCreateDeleteResponse, tags=["scheduler"])
-async def remove_job(name="crawlab_import"):
+async def remove_job(name="crawlab_import", admin: UserDB = Depends(get_current_admin())):
     """
     Removes a Job from a Schedule
     """

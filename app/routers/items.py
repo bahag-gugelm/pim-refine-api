@@ -3,7 +3,7 @@ from typing import List, Union
 
 from app.core.config import settings
 from app.models.user import UserDB
-from app.routers.users import current_active_user 
+from app.utils.dependencies import get_current_user 
 from app.datasources.external.p_info import PInfo
 from app.datasources.external.meilisearch import MeiliSearch
 from app.datasources.external.icecat import Icecat
@@ -17,7 +17,7 @@ router = APIRouter()
 @router.get('/items/search')
 async def search(
     query: str,
-    user: UserDB = Depends(current_active_user),
+    user: UserDB = Depends(get_current_user()),
     response_model=None,
     status_code=200
     ):
@@ -53,7 +53,7 @@ async def search(
 @router.get('/icecat/search')
 async def search(
     query: str,
-    user: UserDB = Depends(current_active_user),
+    user: UserDB = Depends(get_current_user()),
     response_model=None,
     status_code=200
     ):

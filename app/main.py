@@ -15,7 +15,7 @@ from app.core.config import settings
 from app.db import database
 from app.utils.dependencies import get_user_manager
 from app.models.user import UserDB, UserModel, UserCreate
-from app.routers.users import current_active_user, fastapi_users, jwt_authentication
+from app.routers.users import fastapi_users, jwt_authentication
 from app.routers import items
 from app.routers import schedules
 
