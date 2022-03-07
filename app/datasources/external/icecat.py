@@ -15,8 +15,9 @@ class Icecat(DataSource):
 
 
     def _cleanup_txt(self, text: str):
-        clean = re.compile('<.*?>')
-        return re.sub(clean, '', text).strip().replace('\n', '')
+        if text:
+            clean = re.compile('<.*?>')
+            return re.sub(clean, '', text).strip().replace('\n', '')
 
 
     def _extract_attributes(self, data: dict):
