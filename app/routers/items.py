@@ -28,12 +28,16 @@ async def search(
     response = list()
     query = [num.strip() for num in re.split('[\D]', query) if num]
     query_items_length = set(len(num) for num in query)
+    if not query_items_length:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No valid numbers (PIM_SKU, EAN) found in query",
+            )
     if len(query_items_length) > 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Mixed length numbers in query",
-        )
-
+            )
     if query_items_length.pop() not in (13, ):
         eans = list()
         async with PimEanReference(
@@ -42,7 +46,8 @@ async def search(
             ) as ref_client:
             for num in query:
                 item = await ref_client.search(num)
-                eans.append(item['ean'])
+                if item:
+                    eans.append(item['ean'])
         query = eans
 
     for ean in query:

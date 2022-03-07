@@ -19,5 +19,4 @@ class PimEanReference(DataSource):
     async def search(self, query: str) -> dict:
         response = await self.session.get(f'{self.api_url}/pim_ean/{query}')
         json_body = response.json()
-        print(json_body)
         return json_body
