@@ -1,4 +1,6 @@
-from fastapi import (APIRouter, Depends)
+import re
+
+from fastapi import (APIRouter, Depends, HTTPException, status)
 from typing import List, Union
 
 from app.core.config import settings
@@ -8,6 +10,7 @@ from app.datasources.external.p_info import PInfo
 from app.datasources.external.meilisearch import MeiliSearch
 from app.datasources.external.icecat import Icecat
 from app.datasources.external.crawlab import Crawlab
+from app.datasources.external.reference import PimEanReference
 
 
 
@@ -23,8 +26,26 @@ async def search(
     ):
    
     response = list()
+    query = [num.strip() for num in re.split('[\D]', query) if num]
+    query_items_length = set(len(num) for num in query)
+    if len(query_items_length) > 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mixed length numbers in query",
+        )
 
-    for ean in (item.strip() for item in query.split(',')):
+    if query_items_length.pop() not in (13, ):
+        eans = list()
+        async with PimEanReference(
+            api_url = settings.REFERENCE_API_URL,
+            api_key = settings.REFERENCE_API_KEY
+            ) as ref_client:
+            for num in query:
+                item = await ref_client.search(num)
+                eans.append(item['ean'])
+        query = eans
+
+    for ean in query:
         p_info_results = await PInfo(
             api_url = settings.P_INFO_API_URL,
             api_key = settings.P_INFO_API_KEY

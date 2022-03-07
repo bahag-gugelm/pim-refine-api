@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     ICECAT_USER: str
     ICECAT_API_KEY: str
 
+    REFERENCE_API_URL: str
+    REFERENCE_API_KEY: str
+
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
