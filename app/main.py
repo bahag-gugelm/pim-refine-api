@@ -12,7 +12,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from app.core.config import settings
-from app.db import database
+from app.db import database, bdx_database
 from app.utils.dependencies import get_user_manager
 from app.models.user import UserDB, UserModel, UserCreate
 from app.routers.users import fastapi_users, jwt_authentication
@@ -22,6 +22,7 @@ from app.routers import schedules
 
 app = FastAPI()
 app.state.database = database
+app.state.bdx_database = bdx_database
 
 
 # Set all CORS enabled origins
@@ -38,8 +39,11 @@ if settings.BACKEND_CORS_ORIGINS:
 @app.on_event("startup")
 async def startup() -> None:
     database_ = app.state.database
+    bdx_database_ = app.state.bdx_database
     if not database_.is_connected:
         await database_.connect()
+    if not bdx_database_.is_connected:
+        await bdx_database_.connect()
     
     try:
         jobstores = {
@@ -70,8 +74,11 @@ async def startup() -> None:
 @app.on_event("shutdown")
 async def shutdown() -> None:
     database_ = app.state.database
+    bdx_database_ = app.state.bdx_database
     if database_.is_connected:
         await database_.disconnect()
+    if bdx_database_.is_connected:
+        await bdx_database_.disconnect()
     app.state.scheduler.shutdown()
     logger.info("Scheduler is shut down")
 

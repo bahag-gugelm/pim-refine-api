@@ -2,10 +2,11 @@ from functools import lru_cache
 
 import secrets
 from typing import Any, Dict, List, Optional, Union
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, PostgresDsn, validator
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
+    PRODUCTION: bool = True
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 seconds * 60 minutes * 24 hours * 14 days = 14 days
     ACCESS_TOKEN_LIFETIME: int = 60 * 60 * 24 * 14
@@ -26,6 +27,12 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
+    BDX_SERVER: str
+    BDX_USER: str
+    BDX_PASSWORD: str
+    BDX_DB: str
+    BDX_TYPE: str = "postgresql"
+
     POSTGRES_SERVER: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -37,10 +44,8 @@ class Settings(BaseSettings):
     ICECAT_USER: str
     ICECAT_API_KEY: str
 
-    REFERENCE_API_URL: str
-    REFERENCE_API_KEY: str
-
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+    BDX_SQLALCHEMY_DATABASE_URI: Optional[AnyUrl] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
@@ -52,6 +57,18 @@ class Settings(BaseSettings):
             password=values.get("POSTGRES_PASSWORD"),
             host=values.get("POSTGRES_SERVER"),
             path=f"/{values.get('POSTGRES_DB') or ''}",
+        )
+    
+    @validator("BDX_SQLALCHEMY_DATABASE_URI", pre=True)
+    def assemble_bdx_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        if isinstance(v, str):
+            return v
+        return AnyUrl.build(
+            scheme=values.get("BDX_TYPE"),
+            user=values.get("BDX_USER"),
+            password=values.get("BDX_PASSWORD"),
+            host=values.get("BDX_SERVER"),
+            path=f"/{values.get('BDX_DB') or ''}",
         )
 
     FIRST_SUPERUSER: EmailStr

@@ -54,7 +54,7 @@ class Icecat(DataSource):
             elif json_body.get("StatusCode") == 9: # Product not available in open icecat but in full icecat.
                 return {'Available in full IceCat'} 
             else:
-                return [] # Product not availiable in icecat.
+                return None # Product not availiable in icecat.
 
 
     async def search_full_icecat(self, query: str, username, icecat_api_key, requested_by: str) -> dict:
@@ -75,5 +75,5 @@ class Icecat(DataSource):
                     product_info = self._extract_attributes(item.info)
                     return product_info
                 else:
-                    return []
+                    return None
         return self._extract_attributes(cached_item.info)

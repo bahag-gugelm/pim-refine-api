@@ -5,13 +5,11 @@ from typing import List, Union
 
 from app.core.config import settings
 from app.models.user import UserDB
-from app.utils.dependencies import get_current_user 
-from app.datasources.external.p_info import PInfo
-from app.datasources.external.meilisearch import MeiliSearch
-from app.datasources.external.icecat import Icecat
+from app.utils.dependencies import get_current_user
+from app.datasources.internal.bdx_am import BdxAm
 from app.datasources.external.crawlab import Crawlab
-from app.datasources.external.reference import PimEanReference
-
+from app.datasources.external.icecat import Icecat
+from app.datasources.external.p_info import PInfo
 
 
 router = APIRouter()
@@ -24,9 +22,9 @@ async def search(
     response_model=None,
     status_code=200
     ):
-   
+    pim_client = BdxAm()
     response = list()
-    query = [num.strip() for num in re.split('[\D]', query) if num]
+    query = re.findall(r'(\d+)', query)
     query_items_length = set(len(num) for num in query)
     if not query_items_length:
         raise HTTPException(
@@ -40,14 +38,9 @@ async def search(
             )
     if query_items_length.pop() not in (13, ):
         eans = list()
-        async with PimEanReference(
-            api_url = settings.REFERENCE_API_URL,
-            api_key = settings.REFERENCE_API_KEY
-            ) as ref_client:
-            for num in query:
-                item = await ref_client.search(num)
-                if item:
-                    eans.append(item['ean'])
+        for num in query:
+            ean = await pim_client.pim2ean(num)
+            ean and eans.append(ean)
         query = eans
 
     for ean in query:
@@ -55,8 +48,7 @@ async def search(
             api_url = settings.P_INFO_API_URL,
             api_key = settings.P_INFO_API_KEY
             ).search(query=ean)
-        meilisearch = MeiliSearch('http://34.107.102.246/')
-        pim_results = await meilisearch.search(ean)
+        pim_results = await pim_client.search(ean)
         icecat_results = await Icecat().search(ean)
         async with Crawlab(
             settings.CRAWLAB_API_URL,
@@ -66,7 +58,7 @@ async def search(
         response.append({
             'EAN': ean,
             'results': {
-                **pim_results,
+                **{'internal_pim': pim_results},
                 **{'p_info': p_info_results},
                 **{'icecat': icecat_results},
                 **{'crawlab': crawlab_results}
