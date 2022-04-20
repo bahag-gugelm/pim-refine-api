@@ -36,6 +36,18 @@ class CrawlabItemInfoModel(Model):
     task_id = UUID()
 
 
+class PawInfoModel(Model):
+    class Meta:
+        tablename = 'paw_info'
+        metadata = metadata
+        database = database
+
+    ean = String(
+        primary_key=True, index=True,
+        unique=True, nullable=False, max_length=13
+        )
+    info = JSON()
+
 class PimQuery20_5(Model):
     class Meta:
         tablename = "PIM_aktuell_Query20_5_DE_view"
