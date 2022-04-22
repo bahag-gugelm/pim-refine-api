@@ -26,4 +26,21 @@ class PInfo(DataSource):
                 src for src in articles if src.get('specs_raw') \
                     and len([item for item in articles if item and item.get('specs_raw')]) > 1
                     ]
-            return result_set
+            flat_result_set = []
+            for shop in result_set:
+                dict_temp = {}
+                for shop_att in shop:
+                    if shop_att=="specs_raw":
+                        for specs in shop["specs_raw"]:
+                            dict_temp.update({specs["spec"]: specs["value"]})
+                    elif shop_att=="specs_raw" or shop_att=="cross":
+                        pass
+                    elif type(shop.get(shop_att))==list:
+                        try:
+                            dict_temp.update({shop_att:  ", ".join(shop.get(shop_att))})
+                        except TypeError:
+                            pass
+                    else:
+                        dict_temp.update({shop_att: shop.get(shop_att)})
+                flat_result_set.append(dict_temp)
+            return flat_result_set
