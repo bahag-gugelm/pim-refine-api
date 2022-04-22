@@ -34,17 +34,36 @@ class Icecat(DataSource):
         feature_groups = data.get("FeaturesGroups")
         for feature_group in feature_groups:
             for feature in feature_group.get("Features"):
-                product_info.update(
-                    {
-                        feature.get("Feature").get("Name").get("Value"): feature.get("PresentationValue")
-                    }
-                )
+                if type(feature.get("PresentationValue"))==list:
+                    product_info.update(
+                        {
+                            feature.get("Feature").get("Name").get("Value"): ", ".join(feature.get("PresentationValue"))
+                        }
+                    )
+                else:
+                    product_info.update(
+                        {
+                            feature.get("Feature").get("Name").get("Value"): feature.get("PresentationValue")
+                        }
+                    )
+
         image_list = []
         for image_item in data.get("Gallery"):
             image_list.append(image_item.get("Pic"))
-        product_info.update({"Images": image_list})
+        product_info.update({"Images": ", ".join(image_list)})
         for multimedia_item in data.get("Multimedia"):
-            product_info.update({multimedia_item.get("Type"): multimedia_item.get("URL")})
+            if type(multimedia_item.get("URL"))==list:
+                product_info.update(
+                    {
+                        multimedia_item.get("Type"): ", ".join(multimedia_item.get("URL"))
+                    }
+                )
+            else:
+                product_info.update(
+                    {
+                        multimedia_item.get("Type"): multimedia_item.get("URL")
+                    }
+                )
         return product_info
 
 
