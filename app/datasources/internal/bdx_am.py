@@ -9,11 +9,7 @@ class BdxAm(DataSource):
             'Material_group', 'Variant_product',
             'Mandators', 'SAP_name', 'lfd_nr'
             }
-        if len(query) == 13:
-            res205 = await PimQuery20_5.objects.get_or_none(EAN=query)
-        else:
-            res205 = await PimQuery20_5.objects.get_or_none(Variant_product=query)
-
+        res205 = await PimQuery20_5.objects.get_or_none(EAN=query)
         res = res205 and res205.dict()
         if res:
             res29 = await PimQuery29.objects.all(Variant_product=res['Variant_product'])

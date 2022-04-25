@@ -42,9 +42,9 @@ class PawInfoModel(Model):
         metadata = metadata
         database = database
 
-    ean = String(
+    variant_id = String(
         primary_key=True, index=True,
-        unique=True, nullable=False, max_length=13
+        unique=True, nullable=False, max_length=15
         )
     info = JSON()
 

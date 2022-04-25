@@ -10,6 +10,7 @@ from app.datasources.internal.bdx_am import BdxAm
 from app.datasources.external.crawlab import Crawlab
 from app.datasources.external.icecat import Icecat
 from app.datasources.external.p_info import PInfo
+from app.datasources.external.paw import Paw
 
 
 router = APIRouter()
@@ -55,13 +56,15 @@ async def search(
             settings.CRAWLAB_API_KEY
             ) as crawlab_client:
             crawlab_results = await crawlab_client.search(ean)
+        paw_results = await Paw().search(ean)
         response.append({
             'EAN': ean,
             'results': {
                 **{'internal_pim': pim_results},
                 **{'p_info': p_info_results},
                 **{'icecat': icecat_results},
-                **{'crawlab': crawlab_results}
+                **{'crawlab': crawlab_results},
+                **{'paw': paw_results}
                 }
             })
     

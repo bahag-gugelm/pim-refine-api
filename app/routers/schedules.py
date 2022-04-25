@@ -1,8 +1,10 @@
 from apscheduler.jobstores.base import JobLookupError, ConflictingIdError
+from apscheduler.triggers.cron import CronTrigger
 from fastapi import (APIRouter, Depends, HTTPException, status)
 
 from app.models.job import (
-    CurrentScheduledJob, JobCreateDeleteResponse, CurrentScheduledJobsResponse
+    JobCreateDeleteResponse,
+    CurrentScheduledJobsResponse
     )
 from app.models.user import UserDB
 from app.utils.dependencies import get_current_admin
@@ -15,19 +17,19 @@ router = APIRouter()
 
 
 @router.get("/scheduler/", response_model = CurrentScheduledJobsResponse, tags=["scheduler"])
-async def get_scheduled_syncs(admin: UserDB = Depends(get_current_admin())):
+async def get_scheduled_jobs(admin: UserDB = Depends(get_current_admin())):
     """
     Will provide a list of currently Scheduled Tasks
     """
     schedules = []
     for job in get_scheduler().get_jobs():
         schedules.append({"job_id": str(job.id), "run_frequency": str(job.trigger), "next_run": str(job.next_run_time)})
-    return {"jobs":schedules}
+    return {"jobs": schedules}
 
 
 @router.post("/scheduler/", response_model = JobCreateDeleteResponse, tags=["scheduler"])
 async def schedule_job(
-    time_in_seconds: int = 60,
+    crontab_expression: str = '0 5 * * *',
     name = "crawlab_import",
     admin: UserDB = Depends(get_current_admin())
     ):
@@ -35,7 +37,7 @@ async def schedule_job(
     Adds a New Job to a Schedule
     """
     try:
-        job = get_scheduler().add_job(scheduler_jobs[name], 'interval', seconds=time_in_seconds, id=name)
+        job = get_scheduler().add_job(scheduler_jobs[name], CronTrigger.from_crontab(crontab_expression), id=name)
         return {"scheduled": True, "job_id": job.id}
     except ConflictingIdError:
         raise HTTPException(

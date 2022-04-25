@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
     BDX_SQLALCHEMY_DATABASE_URI: Optional[AnyUrl] = None
 
+    PAW_HOST: str
+    PAW_USER: str
+    PAW_PASSWORD: str
+
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
