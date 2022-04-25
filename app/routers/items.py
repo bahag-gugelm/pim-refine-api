@@ -30,20 +30,24 @@ async def search(
     if not query_items_length:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No valid numbers (PIM_SKU, EAN) found in query",
+            detail="Empty query",
             )
     if len(query_items_length) > 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Mixed length numbers in query",
+            detail="Mixed length items in query",
             )
     if query_items_length.pop() not in (13, ):
         eans = list()
         for num in query:
             ean = await pim_client.pim2ean(num)
             ean and eans.append(ean)
+        if not eans:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No valid PIM_SKU found in query",
+                )
         query = eans
-
     for ean in query:
         p_info_results = await PInfo(
             api_url = settings.P_INFO_API_URL,
