@@ -47,9 +47,19 @@ async def startup() -> None:
     
     try:
         jobstores = {
-            'default': SQLAlchemyJobStore(engine=create_engine(settings.SQLALCHEMY_DATABASE_URI))
+            'default': SQLAlchemyJobStore(
+                engine=create_engine(
+                    settings.SQLALCHEMY_DATABASE_URI,
+                    pool_pre_ping=True
+                    )
+                )
             }
-        app.state.scheduler = AsyncIOScheduler(jobstores=jobstores)
+        app.state.scheduler = AsyncIOScheduler(
+            jobstores=jobstores, job_defaults={
+                'misfire_grace_time': 60 * 30,
+                'coalesce': True
+                }
+            )
         app.state.scheduler.start()
         logger.info("Created Schedule Object")   
     except Exception as e:    
