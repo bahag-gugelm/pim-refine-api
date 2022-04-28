@@ -93,6 +93,16 @@ async def shutdown() -> None:
     logger.info("Scheduler is shut down")
 
 
+@app.get('/', tags=['root'])
+async def info():
+    return {
+        'api': settings.SERVER_NAME,
+        'version': '0.5a-pre',
+        'docs': '/docs',
+        'openapi': '/openapi.json'
+        }
+
+
 app.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth/jwt", tags=["auth"])
 app.include_router(fastapi_users.get_register_router(), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
