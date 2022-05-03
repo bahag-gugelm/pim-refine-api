@@ -1,6 +1,7 @@
 import logging
 import re
 from typing import Union, List
+from charset_normalizer import CharsetMatch
 from fastapi.exceptions import HTTPException
 from httpx import AsyncClient
 
@@ -76,10 +77,9 @@ class Icecat(DataSource):
             if info_data:
                 product_info = self._extract_attributes(info_data)
                 return product_info
-            elif json_body.get("StatusCode") == 9: # Product not available in open icecat but in full icecat.
-                return {'Available in full IceCat'} 
-            else:
-                return None # Product not availiable in icecat.
+            if json_body.get("StatusCode") == 9: # Product not available in open icecat but in full icecat.
+                cached_item = await IceCatItemInfoModel.objects.get_or_none(ean=query)
+                return cached_item and self._extract_attributes(cached_item.info) or {'Available in full IceCat'} 
 
 
     async def search_full_icecat(self, query: str, username, icecat_api_key, requested_by: str) -> dict:
