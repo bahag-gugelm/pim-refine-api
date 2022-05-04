@@ -81,7 +81,7 @@ class Icecat(DataSource):
                 return product_info
             if json_body.get("StatusCode") == 9: # Product not available in open icecat but in full icecat.
                 cached_item = await IceCatItemInfoModel.objects.get_or_none(ean=query)
-                return cached_item and self._extract_attributes(cached_item.info) or {'Available in full IceCat'} 
+                return cached_item and self._extract_attributes(cached_item.info) or {'info' :'Available in full IceCat'}
 
 
     async def search_full_icecat(self, query: str, username, icecat_api_key, requested_by: str) -> dict:
