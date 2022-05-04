@@ -35,7 +35,7 @@ class Icecat(DataSource):
         feature_groups = data.get("FeaturesGroups")
         for feature_group in feature_groups:
             for feature in feature_group.get("Features"):
-                if type(feature.get("PresentationValue"))==list:
+                if isinstance(feature.get("PresentationValue"), list):
                     product_info.update(
                         {
                             feature.get("Feature").get("Name").get("Value"): ", ".join(feature.get("PresentationValue"))
@@ -53,7 +53,7 @@ class Icecat(DataSource):
             image_list.append(image_item.get("Pic"))
         product_info.update({"Images": ", ".join(image_list)})
         for multimedia_item in data.get("Multimedia"):
-            if type(multimedia_item.get("URL"))==list:
+            if isinstance(multimedia_item.get("URL"), list):
                 product_info.update(
                     {
                         multimedia_item.get("Type"): ", ".join(multimedia_item.get("URL"))
@@ -65,6 +65,8 @@ class Icecat(DataSource):
                         multimedia_item.get("Type"): multimedia_item.get("URL")
                     }
                 )
+            eprel_link = multimedia_item.get('EprelLink')
+            eprel_link and product_info.update({'EprelLink': eprel_link, 'EprelID': eprel_link.split('/')[-1]})
         return product_info
 
 
