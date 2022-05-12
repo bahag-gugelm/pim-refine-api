@@ -62,21 +62,20 @@ async def paw_import():
                     csv_reader = csv.DictReader(csv_file, delimiter=';', quoting=csv.QUOTE_NONE)
                     for row in csv_reader:
                         variant_id = row.pop('Artikelnummer')
-                        if variant_id not in ('***', ):
+                        if all([variant_id not in ('***', ), variant_id not in db_items]):
                             try:
                                 new_item = {
                                     'variant_id': variant_id,
                                     'info': {k: v.replace('#', ' ') for k, v in row.items()}
                                     }
+                                new_items.append(PawInfoModel(**new_item))
                             except AttributeError:
                                 continue
-
-                            if not variant_id in db_items:
-                                new_items.append(PawInfoModel(**new_item))
+                
                 if new_items:
                     await PawInfoModel.objects.bulk_create(new_items)
                 
-                ftp.delete(f'./{fname}') 
+                ftp.delete(f'./{fname}')
 
 scheduler_jobs = {
     'crawlab_import' : crawlab_import,
