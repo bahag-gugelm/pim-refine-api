@@ -4,6 +4,7 @@ from fastapi.exceptions import HTTPException
 from httpx import AsyncClient
 
 from app.datasources.generic import DataSource
+from app.utils.cache import cached
 
 
 class PInfo(DataSource):
@@ -12,6 +13,7 @@ class PInfo(DataSource):
         self.session = AsyncClient(verify=False)
         self.session.headers.update({'pinfo-product-api-key': api_key})
 
+    @cached
     async def search(self, query: str) -> dict:
         async with self.session as client:
             response = await client.get(f'{self.api_url}?gtin={query}')

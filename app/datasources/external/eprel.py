@@ -1,6 +1,7 @@
 import logging
 import httpx
 
+from app.utils.cache import cached
 
 
 logger = logging.getLogger(__name__)
@@ -51,6 +52,7 @@ class EPREL:
 
         logger.warning(f'Can\'t get the label-pack for id={eprel_id}')
 
-    
+
+    @cached
     async def search(self, query: str):
         return await self.get_info(query, await self.get_category(query))

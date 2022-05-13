@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 from app.datasources.generic import DataSource
 from app.models.item import CrawlabItemInfoModel
+from app.utils.cache import cached
 
 
 
@@ -21,6 +22,7 @@ class Crawlab(DataSource):
         await self.session.aclose()
 
 
+    @cached
     async def search(self, query: str) -> dict:
         item = await CrawlabItemInfoModel.objects.get_or_none(ean=query)
         if item:

@@ -6,6 +6,9 @@ from fastapi.logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_users.password import get_password_hash
 
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+
 from sqlalchemy import create_engine
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -64,6 +67,8 @@ async def startup() -> None:
         logger.info("Created Schedule Object")   
     except Exception as e:    
         logger.error(f"Unable to Create Schedule Object because of {e}")
+    
+    FastAPICache.init(InMemoryBackend(), prefix=f'{settings.SERVER_NAME}-cache')
 
 
     # doesn't work under Win

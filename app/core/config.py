@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080"]'
     BACKEND_CORS_ORIGINS: Union[List[AnyHttpUrl], List[str]]= []
 
+    # 60 seconds * 60 minutes * 8 hours = 8 hours
+    CACHE_TTL: int = 60 * 60 * 8
+
     CRAWLAB_API_URL: AnyHttpUrl
     CRAWLAB_API_KEY: str
 

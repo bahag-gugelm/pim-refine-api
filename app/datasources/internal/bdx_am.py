@@ -1,9 +1,11 @@
 from app.datasources.generic import DataSource
 from app.models.item import PimQuery20_5, PimQuery29
+from app.utils.cache import cached
 
-
+from fastapi_cache import FastAPICache
 
 class BdxAm(DataSource):
+    @cached
     async def search(self, query: str):
         attribs_exclude_fields = {
             'Material_group', 'Variant_product',
@@ -15,8 +17,8 @@ class BdxAm(DataSource):
             res29 = await PimQuery29.objects.all(Variant_product=res['Variant_product'])
             res['Attributes'] = [item.dict(exclude=attribs_exclude_fields) for item in res29]
             return res
-
-
+    
+    @cached
     async def pim2ean(self, query: str):
         res = await PimQuery20_5.objects.get_or_none(Variant_product=query)
         if res:

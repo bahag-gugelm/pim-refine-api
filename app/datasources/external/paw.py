@@ -1,9 +1,11 @@
 from app.datasources.generic import DataSource
 from app.models.item import PimQuery20_5, PawInfoModel
+from app.utils.cache import cached
 
 
 
 class Paw(DataSource):
+    @cached
     async def search(self, query: str):
         res205 = await PimQuery20_5.objects.get_or_none(EAN=query)
         if res205:
