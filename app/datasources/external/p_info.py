@@ -15,6 +15,7 @@ class PInfo(DataSource):
 
     @cached
     async def search(self, query: str) -> dict:
+        print(query)
         async with self.session as client:
             response = await client.get(f'{self.api_url}?gtin={query}')
             json_body = response.json()

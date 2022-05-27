@@ -29,16 +29,16 @@ async def search(
             api_url = settings.P_INFO_API_URL,
             api_key = settings.P_INFO_API_KEY
             ).search(query=ean)
-        pim_results = await pim_client.search(ean)
-        icecat_results = await Icecat().search(ean)
+        pim_results = await pim_client.search(query=ean)
+        icecat_results = await Icecat().search(query=ean)
         eprel_id = icecat_results and icecat_results.get('EprelID')
-        eprel_results = eprel_id and await EPREL().search(eprel_id) or None
+        eprel_results = eprel_id and await EPREL().search(query=eprel_id) or None
         async with Crawlab(
             settings.CRAWLAB_API_URL,
             settings.CRAWLAB_API_KEY
             ) as crawlab_client:
-            crawlab_results = await crawlab_client.search(ean)
-        paw_results = await Paw().search(ean)
+            crawlab_results = await crawlab_client.search(query=ean)
+        paw_results = await Paw().search(query=ean)
         response.append({
             'EAN': ean,
             'results': {
