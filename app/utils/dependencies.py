@@ -44,7 +44,7 @@ async def get_eans(query: str):
         pim_client = BdxAm()
         eans = list()
         for num in query:
-            ean = await pim_client.pim2ean(num)
+            ean = await pim_client.pim2ean(query=num)
             ean and eans.append(ean)
         if not eans:
             raise HTTPException(
