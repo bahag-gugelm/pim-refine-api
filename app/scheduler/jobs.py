@@ -1,11 +1,13 @@
 import csv
 from ftplib import FTP
 from io import StringIO
-from itertools import compress
+from itertools import compress, islice
+
+from pysftp import Connection
 
 from app.datasources.external.crawlab import Crawlab
 from app.core.config import settings
-from app.models.item import CrawlabItemInfoModel, PawInfoModel
+from app.models.item import CrawlabItemInfoModel, PawInfoModel, PimQuery20_5, PimQuery29
 
 
 
@@ -77,7 +79,44 @@ async def paw_import():
                 
                 ftp.delete(f'./{fname}')
 
+
+async def pim_import(chunk_size=10000):
+    files = ('Query_20.5_DE.csv', 'Query_29_DE.csv')
+    async def _chunks(iterable, size):
+        it = iter(iterable)
+        while True:
+            chunk = tuple(islice(it, size))
+            if not chunk:
+                break
+            yield chunk
+    with Connection(
+    host=settings.DGE_HOST,
+    username=settings.DGE_USER,
+    password=settings.DGE_PASSWORD
+    ) as sftp:
+        for fname in files:
+            data_model = PimQuery20_5 if '20.5' in fname else PimQuery29
+            db = data_model.Meta.database
+            db_table = data_model.Meta.table
+            await data_model.Meta.database.execute(f'TRUNCATE "{data_model.Meta.tablename}";')
+            print(data_model, 'db table reset')
+            model_fields = data_model.__fields__.keys()
+            csv_file = sftp.open(fname, mode='r')
+            csv_reader = csv.reader(csv_file, delimiter=';')
+            next(csv_reader)
+            async for chunk in _chunks(csv_reader, chunk_size):
+                bulk = [dict(zip(model_fields, item)) for item in chunk]
+                async with db.connection() as connection:
+                    async with connection.transaction():
+                        print(fname, 'bulk sent to db')
+                        yield await db.execute_many(
+                            db_table.insert(),
+                            bulk
+                            )
+
+
 scheduler_jobs = {
-    'crawlab_import' : crawlab_import,
-    'paw_import' : paw_import
+    'crawlab_import': crawlab_import,
+    'paw_import': paw_import,
+    'pim_import': pim_import
     }

@@ -50,7 +50,7 @@ class PawInfoModel(Model):
 
 class PimQuery20_5(Model):
     class Meta:
-        tablename = "PIM_aktuell_Query20_5_DE_view"
+        tablename = "PIM_query20_5"
         database = bdx_database
         metadata = metadata
 
@@ -85,23 +85,21 @@ class PimQuery20_5(Model):
     USP_3 = String(max_length=110)
     USP_4 = String(max_length=110)
     USP_5 = String(max_length=110)
-    Name_attributes = String(max_length=125)
+    Name_attributes = String(max_length=150) # breaks when > original 125 
     Primary_frontend_category = String(max_length=8)
     Secondary_frontend_categories = String(max_length=110)
     Count_available_images = String(max_length=5)
     Count_active_images = String(max_length=5)
     URL_main_image = String(max_length=100)
-    AM_SystemCreated = DateTime()
-    AM_SystemModified = DateTime()
-    AM_ExcelFileWithPath = String(max_length=500)
 
 
 class PimQuery29(Model):
     class Meta:
-        tablename = "PIM_akutell_Query29_DE_view"
+        tablename = "PIM_query29"
         database = bdx_database
         metadata = metadata
     
+    _id = Integer(primary_key=True)
     Material_group = String(max_length=60)
     Variant_product = String(max_length=60)
     Mandators = String(max_length=33)
@@ -114,9 +112,4 @@ class PimQuery29(Model):
     Value_identifier = String(max_length=300)
     Value_name = String(max_length=300)
     Value_unit = String(max_length=60)
-    Value_position = String(max_length=4)
     Value_language = String(max_length=35, nullable=True)
-    lfd_nr = Integer(primary_key=True)
-    AM_SystemCreated = DateTime()
-    AM_SystemModified = DateTime()
-    AM_ExcelFileWithPath = String(max_length=500)

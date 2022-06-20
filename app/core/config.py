@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     SERVER_HOST: AnyHttpUrl
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080"]'
-    BACKEND_CORS_ORIGINS: Union[List[AnyHttpUrl], List[str]]= []
+    BACKEND_CORS_ORIGINS: Union[List[AnyHttpUrl], List[str]] = []
 
     # 60 seconds * 60 minutes * 8 hours = 8 hours
     CACHE_TTL: int = 60 * 60 * 8
@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     BDX_PASSWORD: str
     BDX_DB: str
     BDX_TYPE: str = "postgresql"
+
+    DGE_HOST: str
+    DGE_USER: str
+    DGE_PASSWORD: str
 
     POSTGRES_SERVER: str
     POSTGRES_USER: str
