@@ -99,7 +99,6 @@ async def pim_import(chunk_size=10000):
             db = data_model.Meta.database
             db_table = data_model.Meta.table
             await data_model.Meta.database.execute(f'TRUNCATE "{data_model.Meta.tablename}";')
-            print(data_model, 'db table reset')
             model_fields = data_model.__fields__.keys()
             csv_file = sftp.open(fname, mode='r')
             csv_reader = csv.reader(csv_file, delimiter=';')
@@ -108,8 +107,7 @@ async def pim_import(chunk_size=10000):
                 bulk = [dict(zip(model_fields, item)) for item in chunk]
                 async with db.connection() as connection:
                     async with connection.transaction():
-                        print(fname, 'bulk sent to db')
-                        yield await db.execute_many(
+                        await db.execute_many(
                             db_table.insert(),
                             bulk
                             )
