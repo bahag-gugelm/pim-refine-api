@@ -105,7 +105,6 @@ async def pim_import(chunk_size=50000):
             next(csv_reader)
             async for chunk in _chunks(csv_reader, chunk_size):
                 bulk = [dict(zip(model_fields, item)) for item in chunk]
-                print(bulk[0])
                 async with db.connection() as connection:
                     async with connection.transaction():
                         await db.execute_many(
