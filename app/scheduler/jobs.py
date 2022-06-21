@@ -80,7 +80,7 @@ async def paw_import():
                 ftp.delete(f'./{fname}')
 
 
-async def pim_import(chunk_size=50000):
+async def pim_import(chunk_size=10000):
     files = ('Query_20.5_DE.csv', 'Query_29_DE.csv')
     async def _chunks(iterable, size):
         it = iter(iterable)
