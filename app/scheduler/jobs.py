@@ -80,7 +80,7 @@ async def paw_import():
                 ftp.delete(f'./{fname}')
 
 
-async def pim_import(chunk_size=10000):
+async def pim_import(chunk_size=50000):
     files = ('Query_20.5_DE.csv', 'Query_29_DE.csv')
     async def _chunks(iterable, size):
         it = iter(iterable)
@@ -98,13 +98,14 @@ async def pim_import(chunk_size=10000):
             data_model = PimQuery20_5 if '20.5' in fname else PimQuery29
             db = data_model.Meta.database
             db_table = data_model.Meta.table
+            model_fields = [field for field in data_model.__fields__.keys() if field not in ('id',)]
             await data_model.Meta.database.execute(f'TRUNCATE "{data_model.Meta.tablename}";')
-            model_fields = data_model.__fields__.keys()
             csv_file = sftp.open(fname, mode='r')
             csv_reader = csv.reader(csv_file, delimiter=';')
             next(csv_reader)
             async for chunk in _chunks(csv_reader, chunk_size):
                 bulk = [dict(zip(model_fields, item)) for item in chunk]
+                print(bulk[0])
                 async with db.connection() as connection:
                     async with connection.transaction():
                         await db.execute_many(

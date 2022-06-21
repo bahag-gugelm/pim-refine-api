@@ -99,7 +99,7 @@ class PimQuery29(Model):
         database = bdx_database
         metadata = metadata
     
-    _id = Integer(primary_key=True)
+    id = Integer(primary_key=True)
     Material_group = String(max_length=60, nullable=True)
     Variant_product = String(max_length=60, nullable=True)
     Mandators = String(max_length=33, nullable=True)
