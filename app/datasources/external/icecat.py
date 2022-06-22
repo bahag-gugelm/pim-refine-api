@@ -71,7 +71,6 @@ class Icecat(DataSource):
         return product_info
 
 
-    @cached
     async def search(self, query: str) -> dict:
         async with self.session as client:
             api_url = f"https://live.icecat.biz/api/?UserName=openIcecat-live&Language=DE&GTIN={query}&Content=All"
