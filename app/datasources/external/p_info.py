@@ -2,6 +2,7 @@ from typing import Union, List
 
 from fastapi.exceptions import HTTPException
 from httpx import AsyncClient
+import httpx
 
 from app.datasources.generic import DataSource
 from app.utils.cache import cached
@@ -16,12 +17,15 @@ class PInfo(DataSource):
     @cached
     async def search(self, query: str) -> dict:
         async with self.session as client:
-            response = await client.get(f'{self.api_url}?gtin={query}')
-            json_body = response.json()
-            resp_code = int(json_body['response']['code'])
-            if resp_code not in (200, ):
-                return []
-                # raise HTTPException(status_code=resp_code)
+            try:
+                response = await client.get(f'{self.api_url}?gtin={query}')
+                json_body = response.json()
+                resp_code = int(json_body['response']['code'])
+                if resp_code not in (200, ):
+                    return []
+                    # raise HTTPException(status_code=resp_code)
+            except httpx.ReadTimeout:
+                return 'Unable to get data.'
             
             articles = json_body['articles']
             result_set = [
