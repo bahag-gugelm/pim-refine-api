@@ -8,7 +8,7 @@ class BdxAm(DataSource):
     @cached
     async def search(self, query: str):
         attribs_exclude_fields = {
-            'Material_group', 'Variant_product',
+            'id', 'Material_group', 'Variant_product',
             'Mandators', 'SAP_name',
             }
         res205 = await PimQuery20_5.objects.get_or_none(EAN=query.lstrip('0'))
