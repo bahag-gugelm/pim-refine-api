@@ -18,6 +18,8 @@ class Icecat(DataSource):
 
 
     def _extract_attributes(self, data: dict):
+        full_desc = data.get("GeneralInfo").get("Description").get("LongDesc")
+        
         product_info = {
             "EAN": data.get("GeneralInfo").get("GTIN"),
             "Title": data.get("GeneralInfo").get("Title"),
@@ -25,7 +27,7 @@ class Icecat(DataSource):
             "ShortDescription": data.get("GeneralInfo").get("SummaryDescription").get("ShortSummaryDescription"),
             "LongDescription": data.get("GeneralInfo").get("SummaryDescription").get("LongSummaryDescription"),
             "BulletPoints": data.get("GeneralInfo").get("BulletPoints").get("Values"),
-            "FullDescription": self._txt_cleaner.html_to_text(data.get("GeneralInfo").get("Description").get("LongDesc")),
+            "FullDescription": full_desc and self._txt_cleaner.html_to_text(full_desc) or '',
             "LongProductName": data.get("GeneralInfo").get("Description").get("LongProductName"),
         }
         feature_groups = data.get("FeaturesGroups")
