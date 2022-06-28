@@ -7,19 +7,14 @@ from httpx import AsyncClient
 
 from app.datasources.generic import DataSource
 from app.models.item import IceCatItemInfoModel
-from app.utils.cache import cached
+from app.utils.misc import HTMLTextExtractor
 
 
 class Icecat(DataSource):
     def __init__(self):
         self.session = AsyncClient(verify=False)
         self.logger = logging.getLogger(__name__)
-
-
-    def _cleanup_txt(self, text: str):
-        if text:
-            clean = re.compile('<.*?>')
-            return re.sub(clean, '', text).strip().replace('\n', '')
+        self._txt_cleaner = HTMLTextExtractor()
 
 
     def _extract_attributes(self, data: dict):
@@ -30,7 +25,7 @@ class Icecat(DataSource):
             "ShortDescription": data.get("GeneralInfo").get("SummaryDescription").get("ShortSummaryDescription"),
             "LongDescription": data.get("GeneralInfo").get("SummaryDescription").get("LongSummaryDescription"),
             "BulletPoints": data.get("GeneralInfo").get("BulletPoints").get("Values"),
-            "FullDescription": self._cleanup_txt(data.get("GeneralInfo").get("Description").get("LongDesc")),
+            "FullDescription": self._txt_cleaner.html_to_text(data.get("GeneralInfo").get("Description").get("LongDesc")),
             "LongProductName": data.get("GeneralInfo").get("Description").get("LongProductName"),
         }
         feature_groups = data.get("FeaturesGroups")

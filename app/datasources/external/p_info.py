@@ -6,6 +6,7 @@ import httpx
 
 from app.datasources.generic import DataSource
 from app.utils.cache import cached
+from app.utils.misc import HTMLTextExtractor
 
 
 class PInfo(DataSource):
@@ -13,6 +14,7 @@ class PInfo(DataSource):
         self.api_url = api_url
         self.session = AsyncClient(verify=False)
         self.session.headers.update({'pinfo-product-api-key': api_key})
+        self._txt_cleaner = HTMLTextExtractor()
 
     @cached
     async def search(self, query: str) -> dict:
@@ -29,8 +31,9 @@ class PInfo(DataSource):
             
             articles = json_body['articles']
             result_set = [
-                src for src in articles if src.get('specs_raw') \
-                    and len([item for item in articles if item and item.get('specs_raw')]) > 1
+                src for src in articles if (src.get('specs_raw') \
+                    and len([item for item in articles if item and item.get('specs_raw')]) > 1) \
+                        or src.get('description')
                     ]
             flat_result_set = []
             for shop in result_set:
@@ -47,6 +50,8 @@ class PInfo(DataSource):
                         except TypeError:
                             pass
                     else:
-                        dict_temp.update({shop_att: shop.get(shop_att)})
+                        att_val = shop.get(shop_att)
+                        if att_val:
+                            dict_temp.update({shop_att: self._txt_cleaner.html_to_text(att_val)})
                 flat_result_set.append(dict_temp)
             return flat_result_set
