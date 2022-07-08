@@ -32,7 +32,6 @@ importlib-resources==5.2.2
 makefun==1.11.3
 Mako==1.1.5
 MarkupSafe==2.0.1
-meilisearch-python-async==0.18.0
 ormar==0.10.20
 paramiko==2.11.0
 passlib==1.7.4

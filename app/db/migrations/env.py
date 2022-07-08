@@ -14,7 +14,7 @@ sys.path.append(os.getcwd())
 
 from app.core.config import settings
 from app.db import metadata
-from app.models.user import UserModel
+from app.db.users import User
 from app.models.item import IceCatItemInfoModel, CrawlabItemInfoModel, PawInfoModel
 
 # this is the Alembic Config object, which provides
